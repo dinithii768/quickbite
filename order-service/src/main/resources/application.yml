@@ -1,0 +1,53 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: order-service
+
+  datasource:
+    url: jdbc:postgresql://${ORDER_DB_HOST:localhost}:${ORDER_DB_PORT:5433}/${ORDER_DB_NAME:quickbite_order_db}
+    username: ${ORDER_DB_USERNAME:quickbite_user}
+    password: ${ORDER_DB_PASSWORD:QuickBite2024!}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+    open-in-view: false
+
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+    time-zone: UTC
+
+# API Key Security
+security:
+  api-key: ${ORDER_SERVICE_API_KEY:qb-order-api-key-n3r8w5q1p6}
+
+# Restaurant service URL for inter-service communication
+restaurant:
+  service:
+    url: ${RESTAURANT_SERVICE_URL:http://localhost:8081}
+
+# Swagger / OpenAPI configuration
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+    tags-sorter: alpha
+    operations-sorter: alpha
+
+# Logging
+logging:
+  level:
+    com.quickbite.order: DEBUG
+    org.springframework.security: DEBUG
+    org.hibernate.SQL: DEBUG
