@@ -1,14 +1,14 @@
 /** @type {import('tailwindcss').Config} */
-export default {
+module.exports = {
   content: [
     "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}",
+    "./src/**/*.{js,jsx,ts,tsx}",
   ],
   theme: {
     extend: {
       colors: {
         primary: {
-          50:  '#fff7ed',
+          50: '#fff7ed',
           100: '#ffedd5',
           200: '#fed7aa',
           300: '#fdba74',
@@ -20,7 +20,7 @@ export default {
           900: '#7c2d12',
         },
         secondary: {
-          50:  '#fafafa',
+          50: '#fafafa',
           100: '#f4f4f5',
           200: '#e4e4e7',
           300: '#d4d4d8',
@@ -42,4 +42,4 @@ export default {
     },
   },
   plugins: [],
-}
+};
