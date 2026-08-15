@@ -1,0 +1,59 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+
+  cloud:
+    gateway:
+      routes:
+        - id: restaurant-service
+          uri: http://localhost:8081
+          predicates:
+            - Path=/api/restaurants/**, /api/categories/**, /api/menu-items/**
+          filters:
+            - AddRequestHeader=X-API-KEY, qb-restaurant-api-key-x7k2p9m4n1
+
+        - id: order-service
+          uri: http://localhost:8082
+          predicates:
+            - Path=/api/orders/**, /api/cart/**
+          filters:
+            - AddRequestHeader=X-API-KEY, qb-order-api-key-n3r8w5q1p6
+
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins:
+              - "http://localhost:5173"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowedHeaders:
+              - "*"
+            allowCredentials: true
+            maxAge: 3600
+
+      default-filters:
+        - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8180/realms/quickbite-realm
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+    org.springframework.security: DEBUG
+    reactor.netty: DEBUG
