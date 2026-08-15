@@ -1,0 +1,31 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: restaurant-service
+  datasource:
+    url: jdbc:postgresql://localhost:5433/quickbite_restaurant_db
+    username: quickbite_user
+    password: quickbite_pass
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    open-in-view: false
+
+security:
+  api-key: qb-restaurant-api-key-x7k2p9m4n1
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+
+logging:
+  level:
+    com.quickbite.restaurant: DEBUG
+    org.springframework.security: DEBUG
