@@ -1,11 +1,11 @@
-server:
+﻿server:
   port: 8081
 
 spring:
   application:
     name: restaurant-service
   datasource:
-    url: jdbc:postgresql://localhost:5433/quickbite_restaurant_db
+    url: jdbc:postgresql://localhost:5432/quickbite_restaurant_db
     username: quickbite_user
     password: quickbite_pass
     driver-class-name: org.postgresql.Driver
