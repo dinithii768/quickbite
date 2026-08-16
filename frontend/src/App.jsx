@@ -8,6 +8,11 @@ import LandingPage from './pages/public/LandingPage';
 import NotFoundPage from './pages/public/NotFoundPage';
 import RestaurantsPage from './pages/customer/RestaurantsPage';
 import RestaurantDetailPage from './pages/customer/RestaurantDetailPage';
+import CartPage from './pages/customer/CartPage';
+import CheckoutPage from './pages/customer/CheckoutPage';
+import OrderSuccessPage from './pages/customer/OrderSuccessPage';
+import OrdersPage from './pages/customer/OrdersPage';
+import OrderTrackingPage from './pages/customer/OrderTrackingPage';
 
 const App = () => {
   return (
@@ -16,39 +21,47 @@ const App = () => {
         <CartProvider>
           <Layout>
             <Routes>
-              {/* Public routes */}
               <Route path="/" element={<LandingPage />} />
+
               <Route path="/restaurants" element={
                 <ProtectedRoute>
                   <RestaurantsPage />
                 </ProtectedRoute>
               } />
+
               <Route path="/restaurants/:id" element={
                 <ProtectedRoute>
                   <RestaurantDetailPage />
                 </ProtectedRoute>
               } />
 
-              {/* Placeholder routes for Member 2 */}
               <Route path="/cart" element={
                 <ProtectedRoute>
-                  <div className="page-container">
-                    <h1 className="section-title">Cart</h1>
-                    <p className="text-secondary-400">
-                      Cart page — Member 2 will build this
-                    </p>
-                  </div>
+                  <CartPage />
+                </ProtectedRoute>
+              } />
+
+              <Route path="/checkout" element={
+                <ProtectedRoute>
+                  <CheckoutPage />
+                </ProtectedRoute>
+              } />
+
+              <Route path="/order-success/:id" element={
+                <ProtectedRoute>
+                  <OrderSuccessPage />
                 </ProtectedRoute>
               } />
 
               <Route path="/orders" element={
                 <ProtectedRoute>
-                  <div className="page-container">
-                    <h1 className="section-title">My Orders</h1>
-                    <p className="text-secondary-400">
-                      Orders page — Member 2 will build this
-                    </p>
-                  </div>
+                  <OrdersPage />
+                </ProtectedRoute>
+              } />
+
+              <Route path="/orders/:id" element={
+                <ProtectedRoute>
+                  <OrderTrackingPage />
                 </ProtectedRoute>
               } />
 
