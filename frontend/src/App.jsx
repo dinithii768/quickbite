@@ -3,6 +3,7 @@ import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 import Layout from './components/common/Layout';
 import ProtectedRoute from './components/common/ProtectedRoute';
+import ScrollToTop from './components/common/ScrollToTop';
 
 import LandingPage from './pages/public/LandingPage';
 import NotFoundPage from './pages/public/NotFoundPage';
@@ -19,52 +20,31 @@ const App = () => {
     <BrowserRouter>
       <AuthProvider>
         <CartProvider>
+          <ScrollToTop />
           <Layout>
             <Routes>
               <Route path="/" element={<LandingPage />} />
-
               <Route path="/restaurants" element={
-                <ProtectedRoute>
-                  <RestaurantsPage />
-                </ProtectedRoute>
+                <ProtectedRoute><RestaurantsPage /></ProtectedRoute>
               } />
-
               <Route path="/restaurants/:id" element={
-                <ProtectedRoute>
-                  <RestaurantDetailPage />
-                </ProtectedRoute>
+                <ProtectedRoute><RestaurantDetailPage /></ProtectedRoute>
               } />
-
               <Route path="/cart" element={
-                <ProtectedRoute>
-                  <CartPage />
-                </ProtectedRoute>
+                <ProtectedRoute><CartPage /></ProtectedRoute>
               } />
-
               <Route path="/checkout" element={
-                <ProtectedRoute>
-                  <CheckoutPage />
-                </ProtectedRoute>
+                <ProtectedRoute><CheckoutPage /></ProtectedRoute>
               } />
-
               <Route path="/order-success/:id" element={
-                <ProtectedRoute>
-                  <OrderSuccessPage />
-                </ProtectedRoute>
+                <ProtectedRoute><OrderSuccessPage /></ProtectedRoute>
               } />
-
               <Route path="/orders" element={
-                <ProtectedRoute>
-                  <OrdersPage />
-                </ProtectedRoute>
+                <ProtectedRoute><OrdersPage /></ProtectedRoute>
               } />
-
               <Route path="/orders/:id" element={
-                <ProtectedRoute>
-                  <OrderTrackingPage />
-                </ProtectedRoute>
+                <ProtectedRoute><OrderTrackingPage /></ProtectedRoute>
               } />
-
               <Route path="*" element={<NotFoundPage />} />
             </Routes>
           </Layout>

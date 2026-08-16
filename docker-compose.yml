@@ -1,0 +1,187 @@
+version: '3.8'
+
+services:
+
+  # ==========================================
+  # POSTGRESQL - Restaurant Database
+  # ==========================================
+  restaurant-db:
+    image: postgres:16
+    container_name: quickbite-restaurant-db
+    environment:
+      POSTGRES_DB: quickbite_restaurant_db
+      POSTGRES_USER: quickbite_user
+      POSTGRES_PASSWORD: quickbite_pass
+    ports:
+      - "5433:5432"
+    volumes:
+      - restaurant_db_data:/var/lib/postgresql/data
+    networks:
+      - quickbite-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U quickbite_user -d quickbite_restaurant_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ==========================================
+  # POSTGRESQL - Order Database
+  # ==========================================
+  order-db:
+    image: postgres:16
+    container_name: quickbite-order-db
+    environment:
+      POSTGRES_DB: quickbite_order_db
+      POSTGRES_USER: quickbite_user
+      POSTGRES_PASSWORD: quickbite_pass
+    ports:
+      - "5434:5432"
+    volumes:
+      - order_db_data:/var/lib/postgresql/data
+    networks:
+      - quickbite-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U quickbite_user -d quickbite_order_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ==========================================
+  # REDIS - Rate Limiting
+  # ==========================================
+  redis:
+    image: redis:7-alpine
+    container_name: quickbite-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - quickbite-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+   # ==========================================
+  # KEYCLOAK - Authentication
+  # ==========================================
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0.0
+    container_name: quickbite-keycloak
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_HOSTNAME: localhost
+      KC_HOSTNAME_STRICT: "false"
+      KC_HTTP_ENABLED: "true"
+    command:
+      - start-dev
+    ports:
+      - "8180:8080"
+    networks:
+      - quickbite-network
+  # ==========================================
+  # RESTAURANT SERVICE
+  # ==========================================
+  restaurant-service:
+    build:
+      context: ./restaurant-service
+      dockerfile: Dockerfile
+    container_name: quickbite-restaurant-service
+    depends_on:
+      restaurant-db:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://restaurant-db:5432/quickbite_restaurant_db
+      SPRING_DATASOURCE_USERNAME: quickbite_user
+      SPRING_DATASOURCE_PASSWORD: quickbite_pass
+      SECURITY_API_KEY: qb-restaurant-api-key-x7k2p9m4n1
+    ports:
+      - "8081:8081"
+    networks:
+      - quickbite-network
+
+  # ==========================================
+  # ORDER SERVICE
+  # ==========================================
+  order-service:
+    build:
+      context: ./order-service
+      dockerfile: Dockerfile
+    container_name: quickbite-order-service
+    depends_on:
+      order-db:
+        condition: service_healthy
+      restaurant-service:
+        condition: service_started
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://order-db:5432/quickbite_order_db
+      SPRING_DATASOURCE_USERNAME: quickbite_user
+      SPRING_DATASOURCE_PASSWORD: quickbite_pass
+      SECURITY_API_KEY: qb-order-api-key-n3r8w5q1p6
+      RESTAURANT_SERVICE_URL: http://restaurant-service:8081
+    ports:
+      - "8082:8082"
+    networks:
+      - quickbite-network
+
+  # ==========================================
+  # API GATEWAY
+  # ==========================================
+  api-gateway:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    container_name: quickbite-api-gateway
+    depends_on:
+      - restaurant-service
+      - order-service
+      - redis
+      - keycloak
+    environment:
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: 6379
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER-URI: http://localhost:8180/realms/quickbite-realm
+      SPRING_CLOUD_GATEWAY_ROUTES_0_ID: restaurant-service
+      SPRING_CLOUD_GATEWAY_ROUTES_0_URI: http://restaurant-service:8081
+      SPRING_CLOUD_GATEWAY_ROUTES_0_PREDICATES_0: Path=/api/restaurants/**,/api/categories/**,/api/menu-items/**
+      SPRING_CLOUD_GATEWAY_ROUTES_0_FILTERS_0: AddRequestHeader=X-API-KEY,qb-restaurant-api-key-x7k2p9m4n1
+      SPRING_CLOUD_GATEWAY_ROUTES_1_ID: order-service
+      SPRING_CLOUD_GATEWAY_ROUTES_1_URI: http://order-service:8082
+      SPRING_CLOUD_GATEWAY_ROUTES_1_PREDICATES_0: Path=/api/orders/**,/api/cart/**
+      SPRING_CLOUD_GATEWAY_ROUTES_1_FILTERS_0: AddRequestHeader=X-API-KEY,qb-order-api-key-n3r8w5q1p6
+    ports:
+      - "8080:8080"
+    networks:
+      - quickbite-network
+    extra_hosts:
+      - "localhost:host-gateway"
+
+  # ==========================================
+  # FRONTEND
+  # ==========================================
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: quickbite-frontend
+    depends_on:
+      - api-gateway
+    ports:
+      - "5173:5173"
+    networks:
+      - quickbite-network
+
+# ==========================================
+# NETWORKS
+# ==========================================
+networks:
+  quickbite-network:
+    driver: bridge
+
+# ==========================================
+# VOLUMES
+# ==========================================
+volumes:
+  restaurant_db_data:
+  order_db_data:
