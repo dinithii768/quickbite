@@ -10,7 +10,7 @@ A professional, industry-level **Food Delivery System** built with
 | Member | Role | Service |
 |--------|------|---------|
 | Sharadha Pathirana | Member 1 | Restaurant & Menu Service |
-| [Member 2 Name] | Member 2 | Order Service |
+| Shani Randika | Member 2 | Order Service |
 
 ---
 
