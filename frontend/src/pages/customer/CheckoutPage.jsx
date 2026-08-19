@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MapPin, FileText, CreditCard, ArrowLeft, Sparkles, ShieldCheck } from 'lucide-react';
+import { MapPin, FileText, CreditCard, ArrowLeft, Sparkles, ShieldCheck, Zap, Tag } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
 import { orderService } from '../../services/orderService';
@@ -44,7 +44,7 @@ const CheckoutPage = () => {
       const response = await orderService.createOrder(orderData);
       const orderId = response.data.id;
       await orderService.checkoutOrder(orderId);
-      toast.success('Order placed successfully!');
+      toast.success('Order placed successfully!', { icon: '🎉' });
       await fetchCart();
       navigate(`/order-success/${orderId}`);
     } catch (error) {
@@ -64,6 +64,7 @@ const CheckoutPage = () => {
           message="Add items before checkout"
           action={() => navigate('/restaurants')}
           actionLabel="Browse Restaurants"
+          emoji="🛒"
         />
       </div>
     );
@@ -71,17 +72,17 @@ const CheckoutPage = () => {
 
   const subtotal = cart.totalAmount || 0;
   const deliveryFee = 150;
-  const total = subtotal + deliveryFee;
+  const tax = subtotal * 0.05;
+  const total = subtotal + deliveryFee + tax;
 
   return (
     <div className="page-container">
       <button
         onClick={() => navigate('/cart')}
-        className="flex items-center gap-2 text-secondary-600
-                   hover:text-primary-600 mb-6 font-bold
-                   bg-white/70 backdrop-blur-md hover:bg-white
-                   px-4 py-2.5 rounded-xl border border-white/50
-                   shadow-md transition-all duration-300"
+        className="flex items-center gap-2 text-secondary-600 hover:text-primary-600
+                   mb-6 font-bold bg-white/70 backdrop-blur-md hover:bg-white
+                   px-5 py-3 rounded-2xl border border-white/60
+                   shadow-md hover:shadow-xl transition-all duration-300 slide-up"
       >
         <ArrowLeft className="h-4 w-4" />
         <span>Back to Cart</span>
@@ -89,7 +90,10 @@ const CheckoutPage = () => {
 
       <div className="mb-8 slide-up">
         <div className="flex items-center gap-2 mb-2">
-          <ShieldCheck className="h-6 w-6 text-primary-500" />
+          <div className="bg-gradient-to-r from-primary-500 to-orange-500
+                          rounded-full p-2 animate-pulse-glow">
+            <ShieldCheck className="h-4 w-4 text-white" />
+          </div>
           <span className="text-primary-600 font-black text-sm uppercase tracking-wider">
             Secure Checkout
           </span>
@@ -105,18 +109,18 @@ const CheckoutPage = () => {
         <div className="lg:col-span-2 space-y-6">
 
           {/* Delivery Address */}
-          <div className="card slide-up">
-            <div className="flex items-center gap-3 mb-4">
+          <div className="card slide-up hover:shadow-2xl transition-shadow">
+            <div className="flex items-center gap-4 mb-5">
               <div className="bg-gradient-to-br from-primary-500 to-orange-500
-                              p-3 rounded-2xl shadow-lg">
-                <MapPin className="h-5 w-5 text-white" />
+                              p-4 rounded-2xl shadow-xl animate-bounce-subtle">
+                <MapPin className="h-6 w-6 text-white" />
               </div>
               <div>
-                <h3 className="font-black text-secondary-900 text-lg">
+                <h3 className="font-black text-secondary-900 text-xl">
                   Delivery Address
                 </h3>
-                <p className="text-secondary-500 text-sm">
-                  Where should we deliver?
+                <p className="text-secondary-500 text-sm font-semibold">
+                  Where should we deliver? 📍
                 </p>
               </div>
             </div>
@@ -124,88 +128,100 @@ const CheckoutPage = () => {
               value={deliveryAddress}
               onChange={(e) => setDeliveryAddress(e.target.value)}
               placeholder="Enter your complete delivery address..."
-              rows="3"
+              rows="4"
               className="input-field resize-none"
               required
             />
           </div>
 
           {/* Order Notes */}
-          <div className="card slide-up">
-            <div className="flex items-center gap-3 mb-4">
+          <div className="card slide-up hover:shadow-2xl transition-shadow">
+            <div className="flex items-center gap-4 mb-5">
               <div className="bg-gradient-to-br from-blue-500 to-cyan-500
-                              p-3 rounded-2xl shadow-lg">
-                <FileText className="h-5 w-5 text-white" />
+                              p-4 rounded-2xl shadow-xl">
+                <FileText className="h-6 w-6 text-white" />
               </div>
               <div>
-                <h3 className="font-black text-secondary-900 text-lg">
+                <h3 className="font-black text-secondary-900 text-xl">
                   Special Instructions
                 </h3>
-                <p className="text-secondary-500 text-sm">
-                  Any special requests? (Optional)
+                <p className="text-secondary-500 text-sm font-semibold">
+                  Any special requests? (Optional) 💬
                 </p>
               </div>
             </div>
             <textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              placeholder="Extra spicy, no onions, ring doorbell..."
-              rows="2"
+              placeholder="Extra spicy, no onions, ring doorbell twice..."
+              rows="3"
               className="input-field resize-none"
             />
           </div>
 
           {/* Payment Method */}
-          <div className="card slide-up">
-            <div className="flex items-center gap-3 mb-4">
+          <div className="card slide-up hover:shadow-2xl transition-shadow">
+            <div className="flex items-center gap-4 mb-5">
               <div className="bg-gradient-to-br from-green-500 to-emerald-600
-                              p-3 rounded-2xl shadow-lg">
-                <CreditCard className="h-5 w-5 text-white" />
+                              p-4 rounded-2xl shadow-xl">
+                <CreditCard className="h-6 w-6 text-white" />
               </div>
               <div>
-                <h3 className="font-black text-secondary-900 text-lg">
+                <h3 className="font-black text-secondary-900 text-xl">
                   Payment Method
                 </h3>
-                <p className="text-secondary-500 text-sm">
-                  Choose how to pay
+                <p className="text-secondary-500 text-sm font-semibold">
+                  Choose payment option 💳
                 </p>
               </div>
             </div>
-            <div className="bg-gradient-to-br from-orange-50 to-yellow-50
-                            border-2 border-orange-200 rounded-2xl p-5
-                            flex items-center gap-4">
-              <div className="text-4xl">💵</div>
+
+            <div className="bg-gradient-to-br from-orange-50 via-yellow-50 to-orange-50
+                            border-2 border-orange-300 rounded-2xl p-5
+                            flex items-center gap-4 shadow-lg">
+              <div className="text-5xl animate-bounce-subtle">💵</div>
               <div className="flex-1">
-                <p className="text-orange-900 font-black text-base">
+                <p className="text-orange-900 font-black text-lg">
                   Cash on Delivery
                 </p>
-                <p className="text-orange-600 text-sm">
+                <p className="text-orange-700 text-sm font-semibold">
                   Pay when your order arrives
                 </p>
               </div>
-              <div className="badge-green">Selected</div>
+              <div className="badge-green shadow-lg">✓ Selected</div>
             </div>
           </div>
 
           {/* Customer Info */}
-          <div className="card slide-up">
-            <h3 className="font-black text-secondary-900 text-lg mb-4">
-              Customer Information
-            </h3>
-            <div className="grid grid-cols-2 gap-4 text-sm">
+          <div className="card slide-up hover:shadow-2xl transition-shadow">
+            <div className="flex items-center gap-4 mb-5">
+              <div className="bg-gradient-to-br from-purple-500 to-pink-500
+                              p-4 rounded-2xl shadow-xl">
+                <Sparkles className="h-6 w-6 text-white" />
+              </div>
               <div>
-                <p className="text-secondary-400 font-bold text-xs uppercase mb-1">Name</p>
-                <p className="text-secondary-900 font-bold">
+                <h3 className="font-black text-secondary-900 text-xl">
+                  Customer Information
+                </h3>
+                <p className="text-secondary-500 text-sm font-semibold">
+                  Your account details
+                </p>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-gray-50 rounded-2xl p-4">
+                <p className="text-secondary-400 font-black text-xs uppercase mb-1">Name</p>
+                <p className="text-secondary-900 font-black">
                   {user?.firstName} {user?.lastName}
                 </p>
               </div>
-              <div>
-                <p className="text-secondary-400 font-bold text-xs uppercase mb-1">Username</p>
-                <p className="text-secondary-900 font-bold">{user?.username}</p>
+              <div className="bg-gray-50 rounded-2xl p-4">
+                <p className="text-secondary-400 font-black text-xs uppercase mb-1">Username</p>
+                <p className="text-secondary-900 font-black">{user?.username}</p>
               </div>
-              <div className="col-span-2">
-                <p className="text-secondary-400 font-bold text-xs uppercase mb-1">Email</p>
-                <p className="text-secondary-900 font-bold">{user?.email}</p>
+              <div className="col-span-2 bg-gray-50 rounded-2xl p-4">
+                <p className="text-secondary-400 font-black text-xs uppercase mb-1">Email</p>
+                <p className="text-secondary-900 font-black">{user?.email}</p>
               </div>
             </div>
           </div>
@@ -213,23 +229,27 @@ const CheckoutPage = () => {
 
         {/* Right — Summary */}
         <div className="lg:col-span-1">
-          <div className="card sticky top-28 slide-up">
-            <h3 className="font-black text-secondary-900 text-xl mb-6">
-              Order Summary
-            </h3>
+          <div className="card sticky top-28 slide-up bg-gradient-to-br from-white to-orange-50/50">
+            <div className="flex items-center gap-2 mb-6">
+              <Zap className="h-5 w-5 text-primary-500" />
+              <h3 className="font-black text-secondary-900 text-xl">Order Summary</h3>
+            </div>
 
             {/* Items */}
-            <div className="space-y-3 mb-4 max-h-64 overflow-y-auto pr-2">
-              {cart.items.map((item) => (
-                <div key={item.id} className="flex justify-between gap-2
-                                              pb-3 border-b border-gray-100">
-                  <div className="flex-1 min-w-0">
-                    <p className="text-secondary-900 font-bold text-sm
-                                  line-clamp-1">
+            <div className="space-y-2 mb-4 max-h-64 overflow-y-auto pr-2">
+              {cart.items.map((item, idx) => (
+                <div key={item.id}
+                     className="flex justify-between gap-2 pb-3 border-b border-gray-100 slide-up"
+                     style={{animationDelay: `${idx * 50}ms`}}>
+                  <div className="flex items-center gap-2 flex-1 min-w-0">
+                    <div className="w-8 h-8 rounded-lg bg-primary-100
+                                    flex items-center justify-center flex-shrink-0">
+                      <span className="text-xs font-black text-primary-700">
+                        {item.quantity}×
+                      </span>
+                    </div>
+                    <p className="text-secondary-900 font-bold text-sm line-clamp-1">
                       {item.menuItemName}
-                    </p>
-                    <p className="text-secondary-400 text-xs">
-                      {item.quantity} × Rs. {item.unitPrice.toFixed(2)}
                     </p>
                   </div>
                   <p className="text-secondary-900 font-black text-sm">
@@ -240,20 +260,27 @@ const CheckoutPage = () => {
             </div>
 
             <div className="space-y-3 pt-4">
-              <div className="flex justify-between text-secondary-600 text-sm">
+              <div className="flex justify-between text-secondary-600">
                 <span className="font-semibold">Subtotal</span>
                 <span className="font-bold">Rs. {subtotal.toFixed(2)}</span>
               </div>
-              <div className="flex justify-between text-secondary-600 text-sm">
-                <span className="font-semibold">Delivery Fee</span>
+              <div className="flex justify-between text-secondary-600">
+                <span className="font-semibold flex items-center gap-1">
+                  <Tag className="h-4 w-4" />
+                  Delivery Fee
+                </span>
                 <span className="font-bold">Rs. {deliveryFee.toFixed(2)}</span>
               </div>
-              <div className="flex justify-between font-black text-xl
-                              border-t-2 border-dashed border-gray-200 pt-4">
-                <span className="text-secondary-900">Total</span>
-                <span className="text-gradient">
-                  Rs. {total.toFixed(2)}
-                </span>
+              <div className="flex justify-between text-secondary-600">
+                <span className="font-semibold">Tax (5%)</span>
+                <span className="font-bold">Rs. {tax.toFixed(2)}</span>
+              </div>
+
+              <div className="bg-gradient-to-r from-primary-500 to-orange-500 rounded-2xl p-4 shadow-xl">
+                <div className="flex justify-between items-center text-white">
+                  <span className="font-black text-lg">Total</span>
+                  <span className="font-black text-3xl">Rs. {total.toFixed(2)}</span>
+                </div>
               </div>
             </div>
 
@@ -262,19 +289,40 @@ const CheckoutPage = () => {
               disabled={placing || !deliveryAddress.trim()}
               className="btn-primary w-full mt-6 py-4 text-base"
             >
-              {placing ? 'Placing Order...' : (
+              {placing ? (
+                <span className="flex items-center justify-center gap-2">
+                  <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
+                  <span>Placing Order...</span>
+                </span>
+              ) : (
                 <span className="flex items-center justify-center gap-2">
                   <Sparkles className="h-5 w-5" />
-                  <span>Place Order</span>
+                  <span>Place Order Now</span>
                 </span>
               )}
             </button>
 
             <p className="text-secondary-400 text-xs text-center mt-4
-                          flex items-center justify-center gap-1">
+                          flex items-center justify-center gap-1 font-semibold">
               <ShieldCheck className="h-3 w-3" />
-              Secure & Encrypted Payment
+              256-bit SSL Secure Payment
             </p>
+
+            {/* Trust badges */}
+            <div className="mt-6 pt-6 border-t border-gray-200 grid grid-cols-3 gap-2 text-center">
+              <div>
+                <div className="text-2xl mb-1">🔒</div>
+                <p className="text-xs text-secondary-600 font-bold">Secure</p>
+              </div>
+              <div>
+                <div className="text-2xl mb-1">✅</div>
+                <p className="text-xs text-secondary-600 font-bold">Verified</p>
+              </div>
+              <div>
+                <div className="text-2xl mb-1">🚀</div>
+                <p className="text-xs text-secondary-600 font-bold">Fast</p>
+              </div>
+            </div>
           </div>
         </div>
 
